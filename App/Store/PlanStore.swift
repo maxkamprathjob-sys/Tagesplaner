@@ -31,13 +31,13 @@ final class PlanStore: ObservableObject {
     init(context: ModelContext,
          settings: SettingsStore,
          calendarService: CalendarService,
-         notifications: NotificationService = NotificationService(),
-         liveActivity: LiveActivityService = LiveActivityService()) {
+         notifications: NotificationService? = nil,
+         liveActivity: LiveActivityService? = nil) {
         self.context = context
         self.settings = settings
         self.calendarService = calendarService
-        self.notifications = notifications
-        self.liveActivity = liveActivity
+        self.notifications = notifications ?? NotificationService()
+        self.liveActivity = liveActivity ?? LiveActivityService()
     }
 
     // MARK: - Lesen
