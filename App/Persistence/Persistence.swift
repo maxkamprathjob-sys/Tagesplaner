@@ -9,7 +9,27 @@ enum Persistence {
     static let schema = Schema([PlanItem.self])
 
     static var storeURL: URL {
-        AppGroup.storageDirectory.appendingPathComponent("Tagesplaner.store")
+        migrateLocalStoreIntoAppGroupIfNeeded()
+        return AppGroup.storageDirectory.appendingPathComponent("Tagesplaner.store")
+    }
+
+    /// War die App Group früher nicht verfügbar (z. B. andere Signierung), liegen die Daten
+    /// im App-eigenen Ordner. Sobald die App Group verfügbar ist, werden sie einmalig
+    /// dorthin kopiert – nie überschrieben, nie gelöscht.
+    private static func migrateLocalStoreIntoAppGroupIfNeeded() {
+        guard let group = AppGroup.containerURL else { return }
+        let fm = FileManager.default
+        let local = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let names = ["Tagesplaner.store", "Tagesplaner.store-shm", "Tagesplaner.store-wal"]
+        let groupStore = group.appendingPathComponent(names[0])
+        let localStore = local.appendingPathComponent(names[0])
+        guard !fm.fileExists(atPath: groupStore.path), fm.fileExists(atPath: localStore.path) else { return }
+        for name in names {
+            let src = local.appendingPathComponent(name)
+            if fm.fileExists(atPath: src.path) {
+                try? fm.copyItem(at: src, to: group.appendingPathComponent(name))
+            }
+        }
     }
 
     /// Gemeinsamer Container für App und Intents (gleicher Prozess).

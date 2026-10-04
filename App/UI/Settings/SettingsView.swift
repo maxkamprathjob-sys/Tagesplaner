@@ -83,6 +83,10 @@ struct SettingsView: View {
                             .foregroundStyle(Theme.textSecondary)
                     }
                     NavigationLink("Widgets einrichten") { WidgetHelpView() }
+                    LabeledContent("Datenaustausch mit Widgets",
+                                   value: AppGroup.isAvailable ? "aktiv" : "nicht verfügbar")
+                        .font(.footnote)
+                        .foregroundStyle(AppGroup.isAvailable ? Theme.textPrimary : Theme.warning)
                 } header: {
                     Text("Sperrbildschirm")
                 } footer: {
