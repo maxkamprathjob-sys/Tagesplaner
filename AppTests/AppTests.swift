@@ -7,6 +7,13 @@ import PlannerCore
 final class AppTests: XCTestCase {
 
     private var cal: Calendar { DayMath.plannerCalendar }
+    /// ModelContext hält seinen Container nicht fest – Tests müssen ihn am Leben halten.
+    private var containers: [ModelContainer] = []
+
+    override func tearDown() {
+        containers.removeAll()
+        super.tearDown()
+    }
 
     private func date(_ day: Int, _ hour: Int = 0, _ minute: Int = 0) -> Date {
         cal.date(from: DateComponents(year: 2026, month: 10, day: day, hour: hour, minute: minute))!
@@ -14,6 +21,7 @@ final class AppTests: XCTestCase {
 
     private func makeStore(container: ModelContainer? = nil, now: Date? = nil) -> PlanStore {
         let c = container ?? Persistence.makeContainer(inMemory: true)
+        containers.append(c)
         let defaults = UserDefaults(suiteName: "tests-\(UUID().uuidString)")!
         let store = PlanStore(context: c.mainContext, settings: SettingsStore(defaults: defaults),
                               calendarService: CalendarService())
