@@ -1,0 +1,82 @@
+name: IPA für Sideloading
+
+# Erzeugt eine .ipa-Datei für AltStore/Sideloadly (Signierung mit kostenloser Apple-ID).
+# Download: Actions → dieser Workflow → letzter Lauf → unten "Artifacts" → Tagesplaner-ipa.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  ipa:
+    runs-on: macos-26
+    timeout-minutes: 40
+    env:
+      # Eindeutige Kennung. Sideloadly/AltStore signieren damit unter deiner Apple-ID.
+      BUNDLE_ID_PREFIX: ${{ vars.BUNDLE_ID_PREFIX || 'de.maxkamprath' }}
+      DEVELOPMENT_TEAM: ""
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Projekt erzeugen
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Release-Build für iPhone (unsigniert)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Tagesplaner.xcodeproj \
+            -scheme Tagesplaner \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath DerivedData \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee ipa-build.log | grep -E "error:|\*\* BUILD" || true
+          grep -q "BUILD SUCCEEDED" ipa-build.log
+
+      - name: Berechtigungen einbetten und .ipa packen
+        run: |
+          set -euo pipefail
+          APP=DerivedData/Build/Products/Release-iphoneos/Tagesplaner.app
+          GROUP="group.${BUNDLE_ID_PREFIX}.tagesplaner"
+          cat > ent.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>com.apple.security.application-groups</key>
+            <array><string>${GROUP}</string></array>
+          </dict></plist>
+          EOF
+          # Ad-hoc-Signatur nur, damit die App-Group-Berechtigung in der Datei steht.
+          # Die echte Signatur macht Sideloadly/AltStore mit deiner Apple-ID.
+          codesign -f -s - --entitlements ent.plist "$APP/PlugIns/TagesplanerWidgets.appex"
+          codesign -f -s - --entitlements ent.plist "$APP"
+          codesign -d --entitlements - "$APP" 2>/dev/null | tee -a ipa-build.log
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry Tagesplaner.ipa Payload
+          ls -lh Tagesplaner.ipa | tee -a ipa-build.log
+          /usr/libexec/PlistBuddy -c "Print CFBundleIdentifier" "$APP/Info.plist" | tee -a ipa-build.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tagesplaner-ipa
+          path: Tagesplaner.ipa
+          retention-days: 30
+
+      - name: Log ablegen
+        if: always()
+        run: |
+          mkdir -p /tmp/ipa-logs && cp ipa-build.log /tmp/ipa-logs/ 2>/dev/null || true
+          echo "run=${{ github.run_id }} status=${{ job.status }}" > /tmp/ipa-logs/STATUS
+          cd /tmp/ipa-logs && git init -q -b ipa-logs && git config user.name ci && git config user.email ci@users.noreply.github.com
+          git add -A && git commit -qm log && git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ipa-logs
