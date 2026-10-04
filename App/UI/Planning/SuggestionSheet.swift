@@ -142,7 +142,7 @@ struct SuggestionSheet: View {
         let dayWord = isToday ? "Dein heutiger Tag" : "Dieser Tag"
         Text(n.totalFreeMinutes < 15
              ? "\(dayWord) ist bereits vollständig verplant."
-             : "\(dayWord) ist bereits stark ausgelastet. Für „\(item.title)“ fehlen ungefähr \(DurationText.approximate(n.missingMinutes)).")
+             : "\(dayWord) ist bereits stark ausgelastet. Für „\(item.title)“ fehlen ungefähr \(DurationText.approximate(n.missingMinutes))")
             .font(.title3.weight(.semibold))
             .foregroundStyle(Theme.textPrimary)
             .fixedSize(horizontal: false, vertical: true)
@@ -152,7 +152,7 @@ struct SuggestionSheet: View {
                 .font(.footnote).foregroundStyle(Theme.textSecondary)
         }
         if n.largestGapMinutes > 0 {
-            Text("Größte freie Lücke: ungefähr \(DurationText.approximate(n.largestGapMinutes)).")
+            Text("Größte freie Lücke: ungefähr \(DurationText.approximate(n.largestGapMinutes))")
                 .font(.footnote).foregroundStyle(Theme.textSecondary)
         }
         if let late = n.afterBedtime {

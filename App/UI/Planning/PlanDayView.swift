@@ -101,7 +101,7 @@ struct PlanDayView: View {
                 return Proposal(itemID: item.id, title: item.title, priority: item.priority, interval: s.interval, problem: s.deadlineWarning)
             case .noFit(let n):
                 return Proposal(itemID: item.id, title: item.title, priority: item.priority, interval: nil,
-                                problem: "Passt nicht mehr – es fehlen ungefähr \(DurationText.approximate(n.missingMinutes)).")
+                                problem: "Passt nicht mehr – es fehlen ungefähr \(DurationText.approximate(n.missingMinutes))")
             }
         }
         selected = Set(proposals.filter { $0.interval != nil }.map(\.itemID))

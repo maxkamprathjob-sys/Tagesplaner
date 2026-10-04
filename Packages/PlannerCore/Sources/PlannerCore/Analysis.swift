@@ -137,7 +137,7 @@ public enum DayAnalyzer {
             return DayLoad(level: .past, fixedMinutes: fixed, plannedTaskMinutes: planned,
                            unplannedTaskMinutes: estimated, unestimatedTaskCount: unestimated,
                            freeMinutes: 0, headline: "Dieser Tag ist vorbei.",
-                           detail: fixed + planned > 0 ? "Verplant waren ungefähr \(DurationText.approximate(fixed + planned))." : nil)
+                           detail: fixed + planned > 0 ? "Verplant waren ungefähr \(DurationText.approximate(fixed + planned))" : nil)
         }
 
         let dayWord = isToday ? "heute" : "an diesem Tag"
@@ -145,13 +145,13 @@ public enum DayAnalyzer {
         let headline: String
         if free < 15 && estimated > 0 {
             level = .full
-            headline = "Dein Tag ist vollständig verplant. Für offene Aufgaben fehlen ungefähr \(DurationText.approximate(estimated))."
+            headline = "Dein Tag ist vollständig verplant. Für offene Aufgaben fehlen ungefähr \(DurationText.approximate(estimated))"
         } else if free < 15 {
             level = .full
             headline = isToday ? "Für heute ist keine freie Zeit mehr eingeplant." : "Dieser Tag ist vollständig verplant."
         } else if estimated > free {
             level = .tight
-            headline = "Dein Tag ist stark ausgelastet. Für offene Aufgaben fehlen ungefähr \(DurationText.approximate(estimated - free))."
+            headline = "Dein Tag ist stark ausgelastet. Für offene Aufgaben fehlen ungefähr \(DurationText.approximate(estimated - free))"
         } else if Double(estimated) > Double(free) * 0.7 {
             level = .balanced
             headline = "Knapp, aber machbar: ungefähr \(DurationText.approximate(free)) frei für \(DurationText.approximate(estimated)) offene Aufgaben."
