@@ -10,16 +10,32 @@ struct TagesplanerApp: App {
     @StateObject private var store: PlanStore
     @StateObject private var ui = UIState()
     @Environment(\.scenePhase) private var scenePhase
+    private let container: ModelContainer
 
     init() {
         let settings = SettingsStore()
         let calendarService = CalendarService()
-        let container = Persistence.shared
+        var container = Persistence.shared
+        #if DEBUG
+        // Nur für automatische Screenshots im Simulator (CI); nie in Release-Builds.
+        if ProcessInfo.processInfo.arguments.contains("-screenshotDemo") {
+            container = Persistence.makeContainer(inMemory: true)
+            ScreenshotDemo.fill(container.mainContext)
+        }
+        #endif
+        self.container = container
         let store = PlanStore(context: container.mainContext, settings: settings, calendarService: calendarService)
         if let error = Persistence.lastError { store.errorMessage = error }
         _settings = StateObject(wrappedValue: settings)
         _calendarService = StateObject(wrappedValue: calendarService)
         _store = StateObject(wrappedValue: store)
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-tasksTab") {
+            let ui = UIState()
+            ui.tab = .tasks
+            _ui = StateObject(wrappedValue: ui)
+        }
+        #endif
     }
 
     var body: some Scene {
@@ -29,7 +45,7 @@ struct TagesplanerApp: App {
                 .environmentObject(calendarService)
                 .environmentObject(store)
                 .environmentObject(ui)
-                .modelContainer(Persistence.shared)
+                .modelContainer(container)
                 .preferredColorScheme(settings.appearance.colorScheme)
                 .tint(Theme.accent)
                 .onReceive(settings.objectWillChange) { _ in

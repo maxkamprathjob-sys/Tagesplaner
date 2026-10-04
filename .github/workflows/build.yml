@@ -47,8 +47,34 @@ jobs:
             -scheme Tagesplaner \
             -destination "platform=iOS Simulator,id=$UDID" \
             -resultBundlePath TestResults.xcresult \
+            -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO 2>&1 | tee app-tests.log | grep -E "error:|warning: .*(deprecated|unused)|Test Case .*(passed|failed)|TEST (SUCCEEDED|FAILED)|\*\* " || true
           grep -q "TEST SUCCEEDED" app-tests.log
+          echo "$UDID" > sim-udid.txt
+
+      - name: Screenshots im Simulator
+        continue-on-error: true
+        run: |
+          UDID=$(cat sim-udid.txt)
+          APP=$(find DerivedData/Build/Products -name "Tagesplaner.app" -path "*iphonesimulator*" | head -1)
+          mkdir -p screenshots
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance dark
+          xcrun simctl install "$UDID" "$APP"
+          BUNDLE=$(/usr/libexec/PlistBuddy -c "Print CFBundleIdentifier" "$APP/Info.plist")
+          xcrun simctl launch "$UDID" "$BUNDLE" -screenshotDemo
+          sleep 8
+          xcrun simctl io "$UDID" screenshot screenshots/plan-dark.png
+          xcrun simctl terminate "$UDID" "$BUNDLE"
+          xcrun simctl launch "$UDID" "$BUNDLE" -screenshotDemo -tasksTab
+          sleep 6
+          xcrun simctl io "$UDID" screenshot screenshots/tasks-dark.png
+          xcrun simctl terminate "$UDID" "$BUNDLE"
+          xcrun simctl ui "$UDID" appearance light
+          xcrun simctl launch "$UDID" "$BUNDLE" -screenshotDemo
+          sleep 6
+          xcrun simctl io "$UDID" screenshot screenshots/plan-light.png
 
       - name: Gerätebuild (ohne Signatur)
         run: |
@@ -75,6 +101,7 @@ jobs:
         run: |
           mkdir -p /tmp/ci-logs
           cp *.log /tmp/ci-logs/ 2>/dev/null || true
+          cp -r screenshots /tmp/ci-logs/ 2>/dev/null || true
           echo "run=${{ github.run_id }} sha=${{ github.sha }} status=${{ job.status }}" > /tmp/ci-logs/STATUS
           cd /tmp/ci-logs
           git init -q -b ci-logs
