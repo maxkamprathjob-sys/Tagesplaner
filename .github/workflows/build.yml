@@ -1,0 +1,77 @@
+name: Build & Tests
+
+# Läuft bei jedem Push auf einem macOS-Server von GitHub mit Xcode.
+# Ergebnis: Kernlogik-Tests, App-Tests im iOS-Simulator und ein
+# vollständiger (unsignierter) Gerätebuild inkl. Widgets.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      BUNDLE_ID_PREFIX: de.tagesplaner.ci
+      DEVELOPMENT_TEAM: ""
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode-Version
+        run: xcodebuild -version
+
+      - name: XcodeGen installieren
+        run: brew install xcodegen
+
+      - name: Kernlogik testen (PlannerCore)
+        run: swift test --package-path Packages/PlannerCore 2>&1 | tee core-tests.log
+
+      - name: Xcode-Projekt erzeugen
+        run: xcodegen generate
+
+      - name: App-Tests im Simulator
+        run: |
+          set -o pipefail
+          UDID=$(ci/pick-simulator.sh)
+          xcodebuild test \
+            -project Tagesplaner.xcodeproj \
+            -scheme Tagesplaner \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee app-tests.log | grep -E "error:|warning: .*(deprecated|unused)|Test Case .*(passed|failed)|TEST (SUCCEEDED|FAILED)|\*\* " || true
+          grep -q "TEST SUCCEEDED" app-tests.log
+
+      - name: Gerätebuild (ohne Signatur)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Tagesplaner.xcodeproj \
+            -scheme Tagesplaner \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee device-build.log | grep -E "error:|\*\* BUILD" || true
+          grep -q "BUILD SUCCEEDED" device-build.log
+
+      - name: Fehlerübersicht
+        if: failure()
+        run: |
+          for f in core-tests.log app-tests.log device-build.log; do
+            [ -f "$f" ] || continue
+            echo "===== $f ====="
+            grep -nE "error:|failed|FAILED|fatal" "$f" | head -150 || true
+          done
+
+      - name: Logs sichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            *.log
+          retention-days: 7

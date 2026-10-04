@@ -1,0 +1,108 @@
+name: TestFlight
+
+# Baut, signiert und lädt die App zu App Store Connect hoch.
+# Danach erscheint sie nach kurzer Verarbeitung in der TestFlight-App auf dem iPhone.
+#
+# Voraussetzungen (siehe README, Abschnitt "Installation ohne Mac"):
+#   Repository-Variablen:  BUNDLE_ID_PREFIX, DEVELOPMENT_TEAM
+#   Repository-Secrets:    ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY (Inhalt der .p8-Datei)
+on:
+  workflow_dispatch:
+
+jobs:
+  testflight:
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      BUNDLE_ID_PREFIX: ${{ vars.BUNDLE_ID_PREFIX }}
+      DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Voraussetzungen prüfen
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          missing=0
+          for v in BUNDLE_ID_PREFIX DEVELOPMENT_TEAM ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY; do
+            if [ -z "${!v}" ]; then echo "::error::$v fehlt (Variable bzw. Secret im Repository anlegen)"; missing=1; fi
+          done
+          exit $missing
+
+      - name: API-Schlüssel ablegen
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Projekt erzeugen
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Archivieren (signiert über App Store Connect API)
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project Tagesplaner.xcodeproj \
+            -scheme Tagesplaner \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/Tagesplaner.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} 2>&1 | tee archive.log | grep -E "error:|\*\* ARCHIVE" || true
+          grep -q "ARCHIVE SUCCEEDED" archive.log
+
+      - name: Hochladen zu App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${DEVELOPMENT_TEAM}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>testFlightInternalTestingOnly</key><true/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Tagesplaner.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log | grep -E "error:|Upload|EXPORT" || true
+          grep -qE "EXPORT SUCCEEDED|Upload succeeded" export.log
+
+      - name: Fehlerübersicht
+        if: failure()
+        run: |
+          for f in archive.log export.log; do
+            [ -f "$f" ] || continue
+            echo "===== $f ====="
+            grep -nE "error:|Error|failed" "$f" | head -100 || true
+          done
+
+      - name: Schlüssel entfernen
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"
