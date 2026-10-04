@@ -1,0 +1,149 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] /Users/runner/work/Tagesplaner/Tagesplaner/Packages/PlannerCore/.build/arm64-apple-macosx/debug/PlannerCorePackageTests.derived/runner.swift
+[3/7] Write sources
+[4/7] Write swift-version-7974D3F7F03D5E95.txt
+[6/12] Compiling PlannerCore Analysis.swift
+[7/12] Compiling PlannerCore Availability.swift
+[8/14] Compiling PlannerCore NaturalLanguageParser.swift
+[9/14] Compiling PlannerCore PlanningModels.swift
+[10/14] Emitting module PlannerCore
+[11/14] Compiling PlannerCore Scheduler.swift
+[12/14] Compiling PlannerCore TimeMath.swift
+[13/18] Compiling PlannerCoreTests TestSupport.swift
+[14/18] Compiling PlannerCoreTests ParserTests.swift
+[15/18] Compiling PlannerCoreTests PlanningTests.swift
+[16/18] Emitting module PlannerCoreTests
+[17/19] Compiling PlannerCoreTests TimeMathTests.swift
+[18/21] Compiling PlannerCorePackageTests runner.swift
+[19/21] Emitting module PlannerCorePackageTests
+[19/21] Write Objects.LinkFileList
+[20/21] Linking PlannerCorePackageTests
+Build complete! (27.50s)
+Test Suite 'All tests' started at 2026-10-04 21:31:01.498.
+Test Suite 'PlannerCorePackageTests.xctest' started at 2026-10-04 21:31:01.499.
+Test Suite 'ParserTests' started at 2026-10-04 21:31:01.499.
+Test Case '-[PlannerCoreTests.ParserTests testBetweenItems]' started.
+Test Case '-[PlannerCoreTests.ParserTests testBetweenItems]' passed (0.012 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testBetweenTimes]' started.
+Test Case '-[PlannerCoreTests.ParserTests testBetweenTimes]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testDateAndDeadline]' started.
+Test Case '-[PlannerCoreTests.ParserTests testDateAndDeadline]' passed (0.004 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testDateWithoutYearInJanuaryMeansNextYear]' started.
+Test Case '-[PlannerCoreTests.ParserTests testDateWithoutYearInJanuaryMeansNextYear]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testDeadlineKeyword]' started.
+Test Case '-[PlannerCoreTests.ParserTests testDeadlineKeyword]' passed (0.003 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testDeadlineTimeOnly]' started.
+Test Case '-[PlannerCoreTests.ParserTests testDeadlineTimeOnly]' passed (0.003 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testEmptyInputGivesFallbackTitle]' started.
+Test Case '-[PlannerCoreTests.ParserTests testEmptyInputGivesFallbackTitle]' passed (0.003 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testEveningShiftsHours]' started.
+Test Case '-[PlannerCoreTests.ParserTests testEveningShiftsHours]' passed (0.003 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testExactTimeRangeWithColons]' started.
+Test Case '-[PlannerCoreTests.ParserTests testExactTimeRangeWithColons]' passed (0.003 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testExplicitDate]' started.
+Test Case '-[PlannerCoreTests.ParserTests testExplicitDate]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testInvalidDateIsIgnored]' started.
+Test Case '-[PlannerCoreTests.ParserTests testInvalidDateIsIgnored]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testNumberWordsAndHalfHours]' started.
+Test Case '-[PlannerCoreTests.ParserTests testNumberWordsAndHalfHours]' passed (0.017 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testOvernightRange]' started.
+Test Case '-[PlannerCoreTests.ParserTests testOvernightRange]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testPlainTitleIsKept]' started.
+Test Case '-[PlannerCoreTests.ParserTests testPlainTitleIsKept]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testPlanNinetyMinutesSport]' started.
+Test Case '-[PlannerCoreTests.ParserTests testPlanNinetyMinutesSport]' passed (0.003 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testPriorityWords]' started.
+Test Case '-[PlannerCoreTests.ParserTests testPriorityWords]' passed (0.011 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testShoppingToday]' started.
+Test Case '-[PlannerCoreTests.ParserTests testShoppingToday]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testSleepAtNine]' started.
+Test Case '-[PlannerCoreTests.ParserTests testSleepAtNine]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testTomorrowTwoHoursLearning]' started.
+Test Case '-[PlannerCoreTests.ParserTests testTomorrowTwoHoursLearning]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testTwoHoursForExam]' started.
+Test Case '-[PlannerCoreTests.ParserTests testTwoHoursForExam]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testUniFromEightToFourteen]' started.
+Test Case '-[PlannerCoreTests.ParserTests testUniFromEightToFourteen]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testVonBisRange]' started.
+Test Case '-[PlannerCoreTests.ParserTests testVonBisRange]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.ParserTests testWeekday]' started.
+Test Case '-[PlannerCoreTests.ParserTests testWeekday]' passed (0.004 seconds).
+Test Suite 'ParserTests' passed at 2026-10-04 21:31:01.590.
+	 Executed 23 tests, with 0 failures (0 unexpected) in 0.083 (0.091) seconds
+Test Suite 'PlanningTests' started at 2026-10-04 21:31:01.590.
+Test Case '-[PlannerCoreTests.PlanningTests testAdjacentBlocksAreNoConflict]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testAdjacentBlocksAreNoConflict]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testBufferAroundFixedBlocks]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testBufferAroundFixedBlocks]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testDayAnalysisCountsFixedAndOpen]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testDayAnalysisCountsFixedAndOpen]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testDayAnalysisFull]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testDayAnalysisFull]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlineAtRisk]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlineAtRisk]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlineOverdueAndScheduled]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlineOverdueAndScheduled]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlinePreferredCandidates]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlinePreferredCandidates]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlineTightWhenOnlyTodayHasTime]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testDeadlineTightWhenOnlyTodayHasTime]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testDetectsOverlap]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testDetectsOverlap]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testEarlierSleepBlockShortensDay]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testEarlierSleepBlockShortensDay]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testFreeSlotsRespectWakeAndBedtime]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testFreeSlotsRespectWakeAndBedtime]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testFreeSlotsStartAtNow]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testFreeSlotsStartAtNow]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testHighPriorityIsPlannedFirst]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testHighPriorityIsPlannedFirst]' passed (0.003 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testHintsWhenOnlyAfterBedtimeFits]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testHintsWhenOnlyAfterBedtimeFits]' passed (0.002 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testNeverSuggestsPastTimes]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testNeverSuggestsPastTimes]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testNoFitWhenDayIsFull]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testNoFitWhenDayIsFull]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testOvernightBlockConflictsWithEarlyMorning]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testOvernightBlockConflictsWithEarlyMorning]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testPastDay]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testPastDay]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testSuggestsTwoHoursLearningAfterSport]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testSuggestsTwoHoursLearningAfterSport]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testUrgentDeadlineBeatsPriority]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testUrgentDeadlineBeatsPriority]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.PlanningTests testWindowBetweenItems]' started.
+Test Case '-[PlannerCoreTests.PlanningTests testWindowBetweenItems]' passed (0.000 seconds).
+Test Suite 'PlanningTests' passed at 2026-10-04 21:31:01.614.
+	 Executed 21 tests, with 0 failures (0 unexpected) in 0.019 (0.024) seconds
+Test Suite 'TimeMathTests' started at 2026-10-04 21:31:01.614.
+Test Case '-[PlannerCoreTests.TimeMathTests testDayChangeNavigation]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testDayChangeNavigation]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testDayIntervalAcrossDSTChange]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testDayIntervalAcrossDSTChange]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testDurationText]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testDurationText]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testNormalizedIntervalFixesEndBeforeStart]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testNormalizedIntervalFixesEndBeforeStart]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testOverlapsTreatsTouchingAsFree]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testOverlapsTreatsTouchingAsFree]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testOvernightIntervalEndsNextDay]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testOvernightIntervalEndsNextDay]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testRoundUpToGrid]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testRoundUpToGrid]' passed (0.000 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testSameDayInterval]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testSameDayInterval]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testSubtractAndMerge]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testSubtractAndMerge]' passed (0.001 seconds).
+Test Case '-[PlannerCoreTests.TimeMathTests testTimeOfDayNormalizes]' started.
+Test Case '-[PlannerCoreTests.TimeMathTests testTimeOfDayNormalizes]' passed (0.000 seconds).
+Test Suite 'TimeMathTests' passed at 2026-10-04 21:31:01.624.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.006 (0.009) seconds
+Test Suite 'PlannerCorePackageTests.xctest' passed at 2026-10-04 21:31:01.624.
+	 Executed 54 tests, with 0 failures (0 unexpected) in 0.108 (0.125) seconds
+Test Suite 'All tests' passed at 2026-10-04 21:31:01.624.
+	 Executed 54 tests, with 0 failures (0 unexpected) in 0.108 (0.126) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.
