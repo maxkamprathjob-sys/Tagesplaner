@@ -34,5 +34,18 @@ enum ScreenshotDemo {
         items.forEach { context.insert($0) }
         try? context.save()
     }
+
+    @MainActor
+    static func fillThoughts(_ store: ThoughtStore) {
+        store.integrationsEnabled = false
+        store.semanticEnabled = false
+        store.addFolder(name: "Uni", symbol: "graduationcap", keywords: "")
+        for text in ["Wäsche waschen nicht vergessen", "Lisa zum Geburtstag gratulieren",
+                     "Chef wegen Urlaubstagen fragen", "Klausur Baukonstruktion anmelden",
+                     "Neue Serie auf Netflix anschauen", "Milch und Eier kaufen",
+                     "Idee: Regal für den Flur bauen", "Steuererklärung abgeben"] {
+            store.add(text)
+        }
+    }
 }
 #endif

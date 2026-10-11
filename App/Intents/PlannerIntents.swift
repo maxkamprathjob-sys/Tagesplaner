@@ -106,6 +106,33 @@ struct PlanTaskIntent: AppIntent {
     }
 }
 
+/// "Gedanke notieren" – auch vom Sperrbildschirm per Siri, ohne die App zu öffnen.
+struct NoteThoughtIntent: AppIntent {
+    static var title: LocalizedStringResource = "Gedanke notieren"
+    static var description = IntentDescription("Hält einen Gedanken fest und sortiert ihn automatisch in einen Ordner.")
+
+    @Parameter(title: "Gedanke", requestValueDialog: "Was möchtest du festhalten?")
+    var text: String
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("\(\.$text) notieren")
+    }
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let store = ThoughtStore(context: Persistence.shared.mainContext)
+        store.ensureDefaultFolders()
+        guard let result = store.add(text) else {
+            return .result(dialog: "Es wurde nichts notiert.")
+        }
+        let name = store.name(of: result.target)
+        if result.target == .unsorted {
+            return .result(dialog: IntentDialog(stringLiteral: "Notiert. Ich habe den Gedanken unter „Unsortiert“ abgelegt."))
+        }
+        return .result(dialog: IntentDialog(stringLiteral: "Notiert in „\(name)“."))
+    }
+}
+
 struct PlannerShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: TodayOverviewIntent(),
@@ -118,6 +145,12 @@ struct PlannerShortcuts: AppShortcutsProvider {
                               "Was kommt als Nächstes in \(.applicationName)"],
                     shortTitle: "Nächster Termin",
                     systemImageName: "clock")
+        AppShortcut(intent: NoteThoughtIntent(),
+                    phrases: ["Gedanke notieren in \(.applicationName)",
+                              "Notiere einen Gedanken mit \(.applicationName)",
+                              "Neuer Gedanke in \(.applicationName)"],
+                    shortTitle: "Gedanke notieren",
+                    systemImageName: "brain.head.profile")
         AppShortcut(intent: PlanTaskIntent(),
                     phrases: ["Plane etwas ein mit \(.applicationName)",
                               "Neue Aufgabe in \(.applicationName)"],

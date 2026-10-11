@@ -11,35 +11,15 @@ struct RootView: View {
     @EnvironmentObject private var calendarService: CalendarService
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                DayHeaderView()
-                DayLoadBanner(day: ui.selectedDay)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 8)
-
-                Picker("Ansicht", selection: $ui.tab) {
-                    ForEach(UIState.Tab.allCases) { tab in
-                        Text(tab.rawValue).tag(tab)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
-
-                TabView(selection: $ui.tab) {
-                    DayTimelineView(day: ui.selectedDay)
-                        .tag(UIState.Tab.plan)
-                    TaskListView(day: ui.selectedDay)
-                        .tag(UIState.Tab.tasks)
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-            }
-            .background(Theme.background.ignoresSafeArea())
-            .safeAreaInset(edge: .bottom) { QuickAddBar() }
-            .toolbar(.hidden, for: .navigationBar)
-            .overlay(alignment: .top) { ToastView() }
+        TabView(selection: $ui.section) {
+            PlannerScreen()
+                .tabItem { Label("Planer", systemImage: "calendar.day.timeline.left") }
+                .tag(UIState.Section.planner)
+            ThoughtsView()
+                .tabItem { Label("Gedanken", systemImage: "brain.head.profile") }
+                .tag(UIState.Section.thoughts)
         }
+        .overlay(alignment: .top) { ToastView() }
         .sheet(isPresented: $ui.showQuickAdd) {
             QuickAddView()
                 .presentationDetents([.medium, .large])
@@ -70,6 +50,42 @@ struct RootView: View {
             Text(store.errorMessage ?? "")
         }
         .task { await store.refreshIntegrations() }
+    }
+}
+
+/// Bereich "Planer": Tageskopf, Tagesanalyse, Tagesplan | Aufgaben, Schnelleingabe.
+struct PlannerScreen: View {
+    @EnvironmentObject private var ui: UIState
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                DayHeaderView()
+                DayLoadBanner(day: ui.selectedDay)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
+
+                Picker("Ansicht", selection: $ui.tab) {
+                    ForEach(UIState.Tab.allCases) { tab in
+                        Text(tab.rawValue).tag(tab)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+
+                TabView(selection: $ui.tab) {
+                    DayTimelineView(day: ui.selectedDay)
+                        .tag(UIState.Tab.plan)
+                    TaskListView(day: ui.selectedDay)
+                        .tag(UIState.Tab.tasks)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+            }
+            .background(Theme.background.ignoresSafeArea())
+            .safeAreaInset(edge: .bottom) { QuickAddBar() }
+            .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 

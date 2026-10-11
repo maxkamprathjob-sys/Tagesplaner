@@ -8,6 +8,7 @@ struct TagesplanerApp: App {
     @StateObject private var settings: SettingsStore
     @StateObject private var calendarService: CalendarService
     @StateObject private var store: PlanStore
+    @StateObject private var thoughts: ThoughtStore
     @StateObject private var ui = UIState()
     @Environment(\.scenePhase) private var scenePhase
     private let container: ModelContainer
@@ -16,16 +17,25 @@ struct TagesplanerApp: App {
         let settings = SettingsStore()
         let calendarService = CalendarService()
         var container = Persistence.shared
+        var thoughtDefaults = AppGroup.defaults
         #if DEBUG
         // Nur für automatische Screenshots im Simulator (CI); nie in Release-Builds.
-        if ProcessInfo.processInfo.arguments.contains("-screenshotDemo") {
+        let demo = ProcessInfo.processInfo.arguments.contains("-screenshotDemo")
+        if demo {
             container = Persistence.makeContainer(inMemory: true)
             ScreenshotDemo.fill(container.mainContext)
+            thoughtDefaults = UserDefaults(suiteName: "demo-\(UUID().uuidString)") ?? .standard
         }
         #endif
         self.container = container
         let store = PlanStore(context: container.mainContext, settings: settings, calendarService: calendarService)
         if let error = Persistence.lastError { store.errorMessage = error }
+        let thoughts = ThoughtStore(context: container.mainContext, defaults: thoughtDefaults)
+        thoughts.ensureDefaultFolders()
+        #if DEBUG
+        if demo { ScreenshotDemo.fillThoughts(thoughts) }
+        #endif
+        _thoughts = StateObject(wrappedValue: thoughts)
         _settings = StateObject(wrappedValue: settings)
         _calendarService = StateObject(wrappedValue: calendarService)
         _store = StateObject(wrappedValue: store)
@@ -33,6 +43,11 @@ struct TagesplanerApp: App {
         if ProcessInfo.processInfo.arguments.contains("-tasksTab") {
             let ui = UIState()
             ui.tab = .tasks
+            _ui = StateObject(wrappedValue: ui)
+        }
+        if ProcessInfo.processInfo.arguments.contains("-thoughtsTab") {
+            let ui = UIState()
+            ui.section = .thoughts
             _ui = StateObject(wrappedValue: ui)
         }
         #endif
@@ -44,6 +59,7 @@ struct TagesplanerApp: App {
                 .environmentObject(settings)
                 .environmentObject(calendarService)
                 .environmentObject(store)
+                .environmentObject(thoughts)
                 .environmentObject(ui)
                 .modelContainer(container)
                 .preferredColorScheme(settings.appearance.colorScheme)
@@ -62,6 +78,7 @@ struct TagesplanerApp: App {
             ui.refreshToday()
             ui.consumePendingIntent(store: store)
             Task { await store.refreshIntegrations() }
+            thoughts.refresh()
         }
     }
 }
@@ -76,7 +93,14 @@ final class UIState: ObservableObject {
     }
 
     @Published var selectedDay: Date = Calendar.current.startOfDay(for: Date())
+    enum Section: Hashable {
+        case planner, thoughts
+    }
+
+    @Published var section: Section = .planner
     @Published var tab: Tab = .plan
+    /// Fokus auf das Eingabefeld im Bereich "Gedanken" (z. B. aus dem Widget).
+    @Published var focusThoughtInput = false
     @Published var showQuickAdd = false
     @Published var editor: EditorRequest?
     @Published var planning: PlanningSession?
@@ -124,6 +148,12 @@ final class UIState: ObservableObject {
     func handle(url: URL, store: PlanStore) {
         // tagesplaner://day/2026-10-28 oder tagesplaner://today (aus Widgets)
         guard url.scheme == "tagesplaner" else { return }
+        if url.host == "thoughts" {
+            section = .thoughts
+            if url.pathComponents.contains("new") { focusThoughtInput = true }
+            return
+        }
+        section = .planner
         if url.host == "day", let key = url.pathComponents.dropFirst().first {
             let parts = key.split(separator: "-").compactMap { Int($0) }
             if parts.count == 3, let d = Calendar.current.date(from: DateComponents(year: parts[0], month: parts[1], day: parts[2])) {

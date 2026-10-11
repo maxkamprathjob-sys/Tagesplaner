@@ -6,7 +6,7 @@ import SwiftData
 /// auf dieselben Daten zugreifen. Keine Cloud, kein Konto.
 enum Persistence {
 
-    static let schema = Schema([PlanItem.self])
+    static let schema = Schema([PlanItem.self, ThoughtFolder.self, Thought.self])
 
     static var storeURL: URL {
         migrateLocalStoreIntoAppGroupIfNeeded()

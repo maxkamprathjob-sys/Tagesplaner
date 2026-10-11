@@ -7,6 +7,8 @@ struct TagesplanerWidgetBundle: WidgetBundle {
         TodayWidget()
         NextUpWidget()
         OpenTasksWidget()
+        ThoughtsWidget()
+        ThoughtCaptureWidget()
         DayLiveActivityWidget()
     }
 }

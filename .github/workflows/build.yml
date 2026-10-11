@@ -71,6 +71,10 @@ jobs:
           sleep 6
           xcrun simctl io "$UDID" screenshot screenshots/tasks-dark.png
           xcrun simctl terminate "$UDID" "$BUNDLE"
+          xcrun simctl launch "$UDID" "$BUNDLE" -screenshotDemo -thoughtsTab
+          sleep 6
+          xcrun simctl io "$UDID" screenshot screenshots/thoughts-dark.png
+          xcrun simctl terminate "$UDID" "$BUNDLE"
           xcrun simctl ui "$UDID" appearance light
           xcrun simctl launch "$UDID" "$BUNDLE" -screenshotDemo
           sleep 6
